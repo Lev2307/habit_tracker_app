@@ -1,0 +1,11 @@
+
+<form action="" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="fieldWrapper">
+            {{ field.errors }}
+            <li>{{ field.label_tag }} {{ field }}</li>
+        </div>
+    {% endfor %}
+    <input type="submit" value="Create habit">
+</form>

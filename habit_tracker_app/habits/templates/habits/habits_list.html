@@ -1,0 +1,31 @@
+
+{% if habits %}
+    {% for habit in habits %}
+        <div>
+            <h2>{{ habit.title }}</h2>
+            <p>{{ habit.purpose }}</p>
+            {% if habit.habit_datetype == 'every_day' %}
+                <span>Every day</span>
+            {% else %}
+                <span>{{ habit.frequency }}
+                    {% if habit.frequency > 1 %} 
+                        times
+                    {% else %} 
+                        time
+                    {% endif %} 
+                    a {{ habit.habit_datetype }}
+                </span>
+            {% endif %}
+            <div>
+                <p>Выполнили ли вы сегодня привычку?</p>
+                <a href="{% url 'habits:set_habit_status_for_today' pk=habit.id %}?status=complited">Да ✅</a>
+                <a href="{% url 'habits:set_habit_status_for_today' pk=habit.id %}?status=incomplited">Нет ❌</a>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'habits:detail_habit' pk=habit.id %}">Посмотреть вашу историю выполнения привычки</a>
+        </div>
+    {% endfor %}
+{% else %}
+        <p>У вас пока что нет привычек. <a href="{% url 'habits:create_habit' %}">Создать</a></p>
+{% endif %}
