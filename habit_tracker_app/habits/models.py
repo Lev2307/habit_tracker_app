@@ -8,7 +8,7 @@ HABIT_DATETYPES = [
 HABIT_LOG_STATUS = [
     ('complited', 'Выполнено'),
     ('incomplited', 'Не выполнено'),
-    ('forgot', 'Не записано!')
+    ('forgot_to_mark', 'Забыли записать!')
 ]
 class Habit(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)

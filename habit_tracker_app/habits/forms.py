@@ -18,7 +18,7 @@ class CreateHabitForm(forms.ModelForm):
         habit_datetype = self.cleaned_data.get('habit_datetype')
         frequency = self.cleaned_data.get('frequency')
         if habit_datetype == 'every_day' and frequency != 1:
-            raise forms.ValidationError(f'Если вы выбрали выполнять привычку каждый день, поле периодичности должно быть равным 1')
+            raise forms.ValidationError('Если вы выбрали выполнять привычку каждый день, поле периодичности должно быть равным 1')
      
     def save(self, commit=True):
         instance = super().save(commit=False)

@@ -1,6 +1,7 @@
 
 <form action="" method="post">
     {% csrf_token %}
+    {{ form.non_field_errors }}
     {% for field in form %}
         <div class="fieldWrapper">
             {{ field.errors }}

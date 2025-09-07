@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from .models import Habit, HabitLog
 from .forms import CreateHabitForm, CreateHabitLogForm
-from .helpers import set_habit_logs_status_forgot
+from .helpers import set_habit_logs_status_forgot_to_mark
 
 # Create your views here.
 
@@ -76,9 +76,9 @@ def set_habitLog_status(request, pk):
             form = CreateHabitLogForm(habit=habit, data=request.POST)
             if form.is_valid():
                 habit_logs = HabitLog.objects.filter(habit=habit)
-                if len(habit_logs) > 0:
+                if habit_logs.count() > 0:
                     last_habit_log_date = habit_logs.first().date
-                    set_habit_logs_status_forgot(habit, last_habit_log_date)
+                    set_habit_logs_status_forgot_to_mark(habit, last_habit_log_date)
                 habitLog = HabitLog(habit=habit, comment=form.cleaned_data.get('comment'), status=status)
                 habitLog.save()
                 return HttpResponseRedirect(reverse("habits:habits_list"))
