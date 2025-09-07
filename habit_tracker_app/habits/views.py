@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.shortcuts import render, HttpResponseRedirect, get_object_or_404
+from django.shortcuts import render, HttpResponseRedirect, get_object_or_404, Http404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -45,16 +45,30 @@ class HabitDetail(LoginRequiredMixin, generic.DetailView):
     model = Habit
     template_name = 'habits/habit_detail.html'
     success_url = reverse_lazy('habits:habits_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+
+        if obj.user != self.request.user:
+            return self.handle_habit_not_found()
+
+        return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['habitLogs'] = HabitLog.objects.filter(habit=Habit.objects.get(id=self.kwargs['pk']))
         return context
+    
+    def handle_habit_not_found(self):
+        return HttpResponseRedirect(reverse('habits:habits_list'))
 
 @login_required
 def set_habitLog_status(request, pk):
     status = request.GET.get('status')
-    habit = get_object_or_404(Habit, pk=pk) 
+    try:
+        habit = get_object_or_404(Habit, user=request.user, pk=pk)
+    except Http404:
+        return HttpResponseRedirect(reverse('habits:habits_list'))
 
     if status == 'complited' or status == 'incomplited':
         form = CreateHabitLogForm(habit=habit)
@@ -65,7 +79,7 @@ def set_habitLog_status(request, pk):
                 if len(habit_logs) > 0:
                     last_habit_log_date = habit_logs.first().date
                     set_habit_logs_status_forgot(habit, last_habit_log_date)
-                habitLog = HabitLog(habit=habit, comment=form.cleaned_data.get('comment'), status=status, date=timezone.now().date())
+                habitLog = HabitLog(habit=habit, comment=form.cleaned_data.get('comment'), status=status)
                 habitLog.save()
                 return HttpResponseRedirect(reverse("habits:habits_list"))
             
