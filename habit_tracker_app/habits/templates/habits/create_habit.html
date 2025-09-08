@@ -1,12 +1,34 @@
+{% extends 'base.html' %}
 
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    {% for field in form %}
-        <div class="fieldWrapper">
-            {{ field.errors }}
-            <li>{{ field.label_tag }} {{ field }}</li>
-        </div>
-    {% endfor %}
-    <input type="submit" value="Create habit">
-</form>
+{% block title %} Создать новую привычку {% endblock title %}
+
+{% block content %}
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.errors }}
+                <div id="field_{{ field.auto_id }}">{{ field.label_tag }} {{ field }}</div>
+            </div>
+        {% endfor %}
+        <input type="submit" value="Создать привычку">
+    </form>
+{% endblock content %}
+
+{% block script %}
+    <script>
+        const freq = document.getElementById('field_id_frequency');
+        const datetype = document.getElementById('id_habit_datetype');
+
+        datetype.addEventListener('change', function() {
+            const selectedDatetype = this.value;
+
+            if (selectedDatetype == 'every_day') {
+                freq.style.display = 'none';
+            } else {
+                freq.style.display = 'block';
+            }
+        });
+    </script>
+{% endblock script %}

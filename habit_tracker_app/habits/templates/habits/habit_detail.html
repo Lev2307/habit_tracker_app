@@ -1,18 +1,23 @@
+{% extends 'base.html' %}
 
-{% if habitLogs %}
-    {% for log in habitLogs %}
-        <div>
-            <h1>{{ log.comment }}</h1>
-            {% if log.status == 'complited' %} 
-                <span>Выполнено ✅ в {{ log.date }}</span>
-            {% elif log.status == 'incomplited' %}
-                <span>Не выполнено ❌ в {{ log.date }}</span>
-            {% else %}
-                <span>Не было записано 🤦‍♂️ в {{ log.date }}</span>
-            {% endif %}
-            <h5></h5>
-        </div>
-    {% endfor %}
-{% else %}  
-        <p>У вас пока нет созданных отчётов.</p>
-{% endif %}
+{% block title %} Привычка - {{ habit.title }}{% endblock title %}
+
+{% block content %}
+    {% if habitLogs %}
+        {% for log in habitLogs %}
+            <div>
+                <h1>{{ log.comment }}</h1>
+                {% if log.status == 'complited' %} 
+                    <span>Выполнено ✅ в {{ log.date }}</span>
+                {% elif log.status == 'incomplited' %}
+                    <span>Не выполнено ❌ в {{ log.date }}</span>
+                {% else %}
+                    <span>Не было записано 🤦‍♂️ в {{ log.date }}</span>
+                {% endif %}
+                <h5></h5>
+            </div>
+        {% endfor %}
+    {% else %}  
+            <p>У вас пока нет созданных отчётов.</p>
+    {% endif %}
+{% endblock content %}

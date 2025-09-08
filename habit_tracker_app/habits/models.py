@@ -2,8 +2,8 @@ from django.db import models
 from django.utils import timezone
 # Create your models here.
 HABIT_DATETYPES = [
-    ('every_day', 'Каждый день'),
-    ('week', 'Кол-во раз в неделю')
+    ('week', 'Кол-во раз в неделю'),
+    ('every_day', 'Каждый день')
 ]
 HABIT_LOG_STATUS = [
     ('complited', 'Выполнено'),
@@ -14,7 +14,7 @@ class Habit(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title = models.CharField('Название', max_length=100)
     purpose = models.CharField('Цель', max_length=150, blank=True)
-    habit_datetype = models.CharField('Как вы хотите выполнять привычку?', choices=HABIT_DATETYPES, default='every_day')
+    habit_datetype = models.CharField('Как вы хотите выполнять привычку?', choices=HABIT_DATETYPES, default='week')
     streak = models.IntegerField(default=0)
     creation_date = models.DateTimeField(auto_now_add=True)
     frequency = models.PositiveSmallIntegerField(

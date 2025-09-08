@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.main {
+    padding: 2em;
+}
+.habit_card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rebeccapurple;
+    margin-bottom: 10px;
+    padding: 1em;
+}
+a {
+    text-decoration: none;
+    color: rgb(8, 114, 163);
+}
