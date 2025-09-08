@@ -1,15 +1,12 @@
-from datetime import timedelta
-
 from django.shortcuts import render, HttpResponseRedirect, get_object_or_404, Http404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
-from django.utils import timezone
 
 from .models import Habit, HabitLog
 from .forms import CreateHabitForm, CreateHabitLogForm
-from .helpers import set_habit_logs_status_forgot_to_mark
+from .helpers import set_habit_logs_status_forgot_to_mark, increase_habit_streak_field
 
 # Create your views here.
 
@@ -40,6 +37,11 @@ class CreateHabit(LoginRequiredMixin, generic.CreateView):
         kw = super().get_form_kwargs()
         kw['user'] = self.request.user
         return kw
+    
+class DeleteHabit(LoginRequiredMixin, generic.DeleteView):
+    model = Habit
+    template_name = 'habits/delete_habit.html'
+    success_url = reverse_lazy('habits:habits_list')
 
 class HabitDetail(LoginRequiredMixin, generic.DetailView):
     model = Habit
@@ -69,16 +71,18 @@ def set_habitLog_status(request, pk):
         habit = get_object_or_404(Habit, user=request.user, pk=pk)
     except Http404:
         return HttpResponseRedirect(reverse('habits:habits_list'))
+    
+    habit_logs = HabitLog.objects.filter(habit=habit)
 
     if status == 'complited' or status == 'incomplited':
         form = CreateHabitLogForm(habit=habit)
         if request.method == "POST":
             form = CreateHabitLogForm(habit=habit, data=request.POST)
             if form.is_valid():
-                habit_logs = HabitLog.objects.filter(habit=habit)
                 if habit_logs.count() > 0:
                     last_habit_log_date = habit_logs.first().date
                     set_habit_logs_status_forgot_to_mark(habit, last_habit_log_date)
+                increase_habit_streak_field(habit, habit_logs, status)
                 habitLog = HabitLog(habit=habit, comment=form.cleaned_data.get('comment'), status=status)
                 habitLog.save()
                 return HttpResponseRedirect(reverse("habits:habits_list"))
@@ -86,3 +90,4 @@ def set_habitLog_status(request, pk):
         return render(request, 'habits/set_habit_log_status.html', {'habit': habit, 'form': form, 'status': status})
     else:
         return HttpResponseRedirect(reverse('habits:habits_list'))
+    

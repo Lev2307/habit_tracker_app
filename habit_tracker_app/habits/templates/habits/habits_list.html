@@ -28,6 +28,9 @@
                     <a href="{% url 'habits:set_habit_status_for_today' pk=habit.id %}?status=complited">Да ✅</a>
                     <a href="{% url 'habits:set_habit_status_for_today' pk=habit.id %}?status=incomplited">Нет ❌</a>
                 </div>
+                <div>
+                    {{ habit.streak }}
+                </div>
                  <div>
                     <a href="{% url 'habits:detail_habit' pk=habit.id %}">Посмотреть вашу историю выполнения привычки</a>
                 </div>

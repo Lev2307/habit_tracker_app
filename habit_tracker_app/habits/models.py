@@ -41,7 +41,7 @@ class HabitLog(models.Model):
 
     def __str__(self):
         if self.comment:
-            return f'{self.comment} - {self.date}'
+            return f'Лог: `{self.comment}` к привычке `{self.habit}` - {self.status}'
         
     
 
