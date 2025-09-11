@@ -43,6 +43,17 @@ class DeleteHabit(LoginRequiredMixin, generic.DeleteView):
     template_name = 'habits/delete_habit.html'
     success_url = reverse_lazy('habits:habits_list')
 
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+
+        if obj.user != self.request.user:
+            return self.handle_habit_not_found()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def handle_habit_not_found(self):
+        return HttpResponseRedirect(reverse('habits:habits_list'))
+
 class HabitDetail(LoginRequiredMixin, generic.DetailView):
     model = Habit
     template_name = 'habits/habit_detail.html'

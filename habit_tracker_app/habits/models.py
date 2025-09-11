@@ -1,14 +1,18 @@
 from django.db import models
 from django.utils import timezone
 # Create your models here.
+
+HABIT_LOG_STATUS_INCOMPLITED = 'incomplited'
+HABIT_LOG_STATUS_COMPLITED = 'complited'
+
 HABIT_DATETYPES = [
     ('week', 'Кол-во раз в неделю'),
     ('every_day', 'Каждый день')
 ]
 HABIT_LOG_STATUS = [
     ('complited', 'Выполнено'),
-    ('incomplited', 'Не выполнено'),
-    ('forgot_to_mark', 'Забыли записать!')
+    (HABIT_LOG_STATUS_INCOMPLITED, 'Не выполнено'),
+    (HABIT_LOG_STATUS_COMPLITED, 'Забыли записать!')
 ]
 class Habit(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
