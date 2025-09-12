@@ -9,7 +9,7 @@ def divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs):
     '''
         Создаёт двумерный массив логов a, где a[i] - список логов за 1 неделю. Также создаёт список ck, где ck[i] - сколько логов a[i] имеет статус 'complited'
     '''
-    lk = list(habit_logs) # список всех логов
+    lk = list(habit_logs)
     a = [[] for _ in range((len(lk) // 7)+1)] # разбиение логов на недельные блоки ( двумерный массив ) 
     ck = [0 for _ in range(len(a))]
     for i in range(len(lk)):

@@ -6,7 +6,7 @@ from django.urls import reverse, reverse_lazy
 
 from .models import Habit, HabitLog
 from .forms import CreateHabitForm, CreateHabitLogForm
-from .helpers import set_habit_logs_status_forgot_to_mark, increase_habit_streak_field
+from .helpers import set_habit_logs_status_forgot_to_mark, increase_habit_streak_field, divide_habit_logs_of_weekly_habit_by_week_blocks
 
 # Create your views here.
 
@@ -69,7 +69,11 @@ class HabitDetail(LoginRequiredMixin, generic.DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['habitLogs'] = HabitLog.objects.filter(habit=Habit.objects.get(id=self.kwargs['pk']))
+        habit_logs_list = HabitLog.objects.filter(habit=self.get_object())
+        if self.get_object().habit_datetype == 'week':
+            habit_logs_list, complited_habit_logs_in_each_week_block = divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs_list)
+            context['c'] = complited_habit_logs_in_each_week_block
+        context['habitLogs'] = habit_logs_list
         return context
     
     def handle_habit_not_found(self):
@@ -91,7 +95,7 @@ def set_habitLog_status(request, pk):
             form = CreateHabitLogForm(habit=habit, data=request.POST)
             if form.is_valid():
                 if habit_logs.count() > 0:
-                    last_habit_log_date = habit_logs.first().date
+                    last_habit_log_date = habit_logs.last().date
                     set_habit_logs_status_forgot_to_mark(habit, last_habit_log_date)
                 increase_habit_streak_field(habit, habit_logs, status)
                 habitLog = HabitLog(habit=habit, comment=form.cleaned_data.get('comment'), status=status)

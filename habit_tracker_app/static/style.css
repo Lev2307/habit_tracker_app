@@ -17,3 +17,31 @@ a {
     text-decoration: none;
     color: rgb(8, 114, 163);
 }
+
+.weekly_block {
+    border: 2px solid rebeccapurple;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    padding: 15px;
+}
+.every_day_block {
+    border: 2px solid rgb(8, 114, 163);
+    border-radius: 15px;
+    margin-bottom: 10px;
+    padding: 15px;
+}
+.weekly_block > .header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header > .complited_weekly_habit {
+    font-size: 24px;
+    color: rgb(3, 161, 24);
+}
+.header > .incomplited_weekly_habit {
+    font-size: 24px;
+    color: rgb(151, 26, 9);
+}

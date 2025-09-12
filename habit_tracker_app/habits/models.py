@@ -41,11 +41,11 @@ class HabitLog(models.Model):
     comment = models.CharField(max_length=100)
 
     class Meta:
-        ordering = ['-date']
+        ordering = ['date']
 
     def __str__(self):
         if self.comment:
-            return f'Лог: `{self.comment}` к привычке `{self.habit}` - {self.status}'
+            return f'Лог: `{self.comment}` к привычке `{self.habit}` - {self.date}'
         
     
 
