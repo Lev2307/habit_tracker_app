@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %} Создать новую привычку {% endblock title %}
+{% block title %} Редактирование привычки - "{{ object }}" {% endblock title %}
 
 {% block content %}
+    <h3>Если вы хотите изменить значение периодичности или типа даты привычки, то все предыдущие логи будут стерты!</h3>
     <form method="post">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -12,22 +13,24 @@
                 <p id="field_{{ field.auto_id }}">{{ field.label_tag }} {{ field }}</p>
             </div>
         {% endfor %}
-        <input type="submit" value="Создать привычку">
+        <input type="submit" value="Отредачить">
     </form>
 {% endblock content %}
 
 {% block script %}
     <script>
-        const freq = document.getElementById('field_id_frequency');
+        const freq_field_block = document.getElementById('field_id_frequency');
+        const freq_select_field = document.getElementById('id_frequency');
         const datetype = document.getElementById('id_habit_datetype');
 
         datetype.addEventListener('change', function() {
             const selectedDatetype = this.value;
 
             if (selectedDatetype == 'every_day') {
-                freq.style.display = 'none';
+                freq_field_block.style.display = 'none';
+                freq_select_field.value = '1';
             } else {
-                freq.style.display = 'block';
+                freq_field_block.style.display = 'block';
             }
         });
     </script>

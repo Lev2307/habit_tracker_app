@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from .models import Habit, HabitLog
 
-class CreateHabitForm(forms.ModelForm):
+class HabitForm(forms.ModelForm):
     class Meta:
         model = Habit
         fields = ['title', 'purpose', 'habit_datetype', 'frequency']
@@ -15,6 +15,7 @@ class CreateHabitForm(forms.ModelForm):
         self.user = user
 
     def clean(self):
+
         habit_datetype = self.cleaned_data.get('habit_datetype')
         frequency = self.cleaned_data.get('frequency')
         if habit_datetype == 'every_day' and frequency != 1:

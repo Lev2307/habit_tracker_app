@@ -3,7 +3,7 @@
 {% load static %}
 
 
-{% block title %} Список привычек  {% endblock title %}
+{% block title %} Список привычек {% endblock title %}
 
 {% block content %}
     {% if habits %}
@@ -24,7 +24,7 @@
                     </span>
                 {% endif %}
                 <div>
-                    <p>Выполнили ли вы сегодня привычку?</p>
+                    <span>Выполнили ли вы сегодня привычку?</span>
                     <a href="{% url 'habits:set_habit_status_for_today' pk=habit.id %}?status=complited">Да ✅</a>
                     <a href="{% url 'habits:set_habit_status_for_today' pk=habit.id %}?status=incomplited">Нет ❌</a>
                 </div>
