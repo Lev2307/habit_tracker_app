@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from .models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED, HABIT_LOG_STATUS_INCOMPLITED
 
-def create_habit(owner, title, datetype, purpose='', freq=1):
+def create_habit(owner, title, purpose, datetype, freq=1):
     return Habit.objects.create(user=owner, title=title, purpose=purpose, habit_datetype=datetype, frequency=freq)
 
 def create_habit_log(habit, comment: str, status, days_before=0):
@@ -26,8 +26,8 @@ class HabitViewTest(TestCase):
         self.user1 = User.objects.create_user(username=self.username1, password=self.password1)
         self.user2 = User.objects.create_user(username=self.username2, password=self.password2)
 
-        self.habit_weekly = create_habit(self.user1, 'New habit test_views', 'week', 'purp', 2)
-        self.habit_everyday = create_habit(self.user1, 'Habit every day test_views', 'every_day')
+        self.habit_weekly = create_habit(self.user1, 'New habit test_views', 'habit views purpose', 'week', 2)
+        self.habit_everyday = create_habit(self.user1, 'Habit every day test_views', 'habit views purpose', 'every_day')
 
 
     def test_habits_list_is_login_required(self):
@@ -337,8 +337,8 @@ class HabitFormTest(TestCase):
         self.username1 = 'admin1_forms'
         self.password1 = 'password123_forms'
         self.user1 = User.objects.create_user(username=self.username1, password=self.password1)
-        self.habit_weekly = create_habit(self.user1, 'Habit weekly test habit_forms ', 'week', 2)
-        self.habit_everyday = create_habit(self.user1, 'Habit every day  test habit_forms', 'every_day')
+        self.habit_weekly = create_habit(self.user1, 'Habit weekly test habit_forms ', 'habit form purpose', 'week', 2)
+        self.habit_everyday = create_habit(self.user1, 'Habit every day  test habit_forms', 'habit form purpose', 'every_day')
 
     def test_creating_habit_log_to_the_same_date_as_previous_not_allowed(self):
         '''Проверка, что нельзя создать лог о привычке, дата которого совпадает с датой последнего созданного лога'''
@@ -377,8 +377,8 @@ class HabitHelpersTest(TestCase):
         self.username1 = 'admin1_helpers'
         self.password1 = 'password123_helpers'
         self.user1 = User.objects.create_user(username=self.username1, password=self.password1)
-        self.habit_weekly = create_habit(self.user1, 'Habit weekly test habit_helpers ', 'week', 2)
-        self.habit_everyday = create_habit(self.user1, 'Habit every day  test habit_helpers', 'every_day')
+        self.habit_weekly = create_habit(self.user1, 'Habit weekly test habit_helpers', 'habit helpers purpose', 'week', 2)
+        self.habit_everyday = create_habit(self.user1, 'Habit every day  test habit_helpers', 'habit helpers purpose', 'every_day')
 
     def test_creation_habitlogs_with_status_forgot_to_mark(self):
         '''

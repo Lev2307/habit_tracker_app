@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db.models import F
 
-from .models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED
+from .models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED, HABIT_LOG_STATUS_FORGOT_TO_MARK
 
 def divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs):
     '''
@@ -26,7 +26,7 @@ def set_habit_logs_status_forgot_to_mark(habit: Habit, last_habit_log_date):
     if diff_in_days_between_last_log_date_and_now >= 2:
         for i in range(diff_in_days_between_last_log_date_and_now-1):
             date = timezone.now() + timedelta(days=-(diff_in_days_between_last_log_date_and_now-i-1))
-            habitLog = HabitLog(habit=habit, comment='Забыли сделать отчёт!!', status='forgot_to_mark', date=date)
+            habitLog = HabitLog(habit=habit, comment='Забыли сделать отчёт!!', status=HABIT_LOG_STATUS_FORGOT_TO_MARK, date=date)
             habitLog.save()
 
 def increase_habit_streak_field(habit: Habit, habit_logs, new_habit_log_status: str):
