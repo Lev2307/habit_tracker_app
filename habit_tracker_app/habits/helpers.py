@@ -5,7 +5,7 @@ from django.db.models import F
 
 from .models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED, HABIT_LOG_STATUS_FORGOT_TO_MARK
 
-def divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs):
+def divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs, is_json=False):
     '''
         Создаёт двумерный массив логов a, где a[i] - список логов за 1 неделю. Также создаёт список ck, где ck[i] - сколько логов a[i] имеет статус 'complited'
     '''
@@ -14,8 +14,14 @@ def divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs):
     ck = [0 for _ in range(len(a))]
     for i in range(len(lk)):
         a[(i // 7)].append(lk[i])
-        if lk[i].status == HABIT_LOG_STATUS_COMPLITED:
-            ck[(i//7)] += 1
+        if is_json:
+            if lk[i]['status'] == HABIT_LOG_STATUS_COMPLITED:
+                ck[(i//7)] += 1
+        else:
+            if lk[i].status == HABIT_LOG_STATUS_COMPLITED:
+                ck[(i//7)] += 1
+    if is_json:
+        return a
     return a, ck
 
 def set_habit_logs_status_forgot_to_mark(habit: Habit, last_habit_log_date):

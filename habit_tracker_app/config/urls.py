@@ -22,5 +22,6 @@ from habits.views import redirect_to_habits
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', redirect_to_habits),
-    path('habits/', include('habits.urls'))
+    path('habits/', include('habits.urls', namespace='habits')),
+    path('api/', include('habits.api.urls',))
 ]

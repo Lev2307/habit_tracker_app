@@ -15,7 +15,6 @@ class HabitForm(forms.ModelForm):
         self.user = user
 
     def clean(self):
-
         habit_datetype = self.cleaned_data.get('habit_datetype')
         frequency = self.cleaned_data.get('frequency')
         if habit_datetype == 'every_day' and frequency != 1:

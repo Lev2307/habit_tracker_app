@@ -15,12 +15,13 @@ HABIT_LOG_STATUS = [
     (HABIT_LOG_STATUS_INCOMPLITED, 'Не выполнено'),
     (HABIT_LOG_STATUS_FORGOT_TO_MARK, 'Забыли записать!')
 ]
+
 class Habit(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title = models.CharField('Название', max_length=100)
     purpose = models.CharField('Цель', max_length=150, blank=True)
     habit_datetype = models.CharField('Как вы хотите выполнять привычку?', choices=HABIT_DATETYPES, default='week')
-    streak = models.IntegerField(default=0)
+    streak = models.IntegerField(default=0) # сколько дней (недель) подряд выполнялась привычка
     creation_date = models.DateTimeField(auto_now_add=True)
     frequency = models.PositiveSmallIntegerField(
         'Сколько раз в неделю вы хотите выполнять привычку', 
