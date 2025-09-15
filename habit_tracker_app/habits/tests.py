@@ -294,7 +294,7 @@ class HabitViewTest(TestCase):
         self.assertEqual(HabitLog.objects.filter(habit=habit).count(), 0) # логи удалились
 
     def test_update_habit_with_changed_datetype(self):
-        '''Проверка обновления привычки, у которой изменено поле периодичности'''
+        '''Проверка обновления привычки, у которой изменено поле типа даты'''
         habit = Habit.objects.get(habit_datetype='week')
         create_habit_log(habit, 'New log', HABIT_LOG_STATUS_INCOMPLITED)
         data = {
@@ -313,7 +313,7 @@ class HabitViewTest(TestCase):
         self.assertEqual(HabitLog.objects.filter(habit=habit).count(), 0) # логи удалились
 
     def test_update_habit_with_changed_title_or_purpose(self):
-        '''Проверка обновления привычки, у которой изменено поле периодичности'''
+        '''Проверка обновления привычки, у которой изменено название или цель'''
         habit = Habit.objects.get(habit_datetype='week')
         create_habit_log(habit, 'New log', HABIT_LOG_STATUS_INCOMPLITED)
         data = {
