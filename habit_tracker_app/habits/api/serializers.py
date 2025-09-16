@@ -25,7 +25,7 @@ class HabitSerializer(serializers.ModelSerializer):
     def habit_logs_divided_into_blocks(self, *args):
         habit = self.context.get('habit')
         if habit is None:
-            return []
+            return 'None is returned as habit.'
         habit_logs_json = HabitLogSerializer(HabitLog.objects.filter(habit=habit), many=True).data
         if habit.habit_datetype == 'week':
             divided_into_blocks = divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs_json, is_json=True)
@@ -38,6 +38,13 @@ class HabitSerializer(serializers.ModelSerializer):
         if habit_datetype == 'every_day' and frequency != 1:
             raise serializers.ValidationError({'frequency': 'Если вы выбрали выполнять привычку каждый день, поле периодичности должно быть равным 1'})
         return data
+    
+    def update(self, instance, validated_data):
+        habit_datetype = validated_data.get('habit_datetype')
+        frequency = validated_data.get('frequency')
+        if (habit_datetype != instance.habit_datetype) or (frequency != instance.frequency):
+            HabitLog.objects.filter(habit=instance).delete()
+        return instance
     
 class HabitLogSerializer(serializers.ModelSerializer):
     class Meta:

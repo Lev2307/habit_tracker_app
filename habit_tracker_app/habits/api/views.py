@@ -22,4 +22,3 @@ class HabitsViewSet(viewsets.ModelViewSet):
         habit = self.get_object()
         serializer = HabitSerializer(habit, context={'habit': habit})
         return Response(serializer.data)
-    
