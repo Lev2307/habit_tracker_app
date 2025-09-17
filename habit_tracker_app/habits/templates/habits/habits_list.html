@@ -11,8 +11,8 @@
             <div class="habit_card">
                 <h2>{{ habit.title }}</h2>
                 <p>{{ habit.purpose }}</p>
-                {% if habit.habit_datetype == 'every_day' %}
-                    <span>Every day</span>
+                {% if habit.datetype == 'daily' %}
+                    <span>Daily</span>
                 {% else %}
                     <span>{{ habit.frequency }}
                         {% if habit.frequency > 1 %} 
@@ -20,7 +20,7 @@
                         {% else %} 
                             time
                         {% endif %} 
-                        a {{ habit.habit_datetype }}
+                        a {{ habit.datetype }}
                     </span>
                 {% endif %}
                 <div>

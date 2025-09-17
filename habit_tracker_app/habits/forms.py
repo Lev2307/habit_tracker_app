@@ -8,16 +8,16 @@ from .models import Habit, HabitLog
 class HabitForm(forms.ModelForm):
     class Meta:
         model = Habit
-        fields = ['title', 'purpose', 'habit_datetype', 'frequency']
+        fields = ['title', 'purpose', 'datetype', 'frequency']
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
 
     def clean(self):
-        habit_datetype = self.cleaned_data.get('habit_datetype')
+        datetype = self.cleaned_data.get('datetype')
         frequency = self.cleaned_data.get('frequency')
-        if habit_datetype == 'every_day' and frequency != 1:
+        if datetype == 'daily' and frequency != 1:
             raise forms.ValidationError('Если вы выбрали выполнять привычку каждый день, поле периодичности должно быть равным 1')
      
     def save(self, commit=True):

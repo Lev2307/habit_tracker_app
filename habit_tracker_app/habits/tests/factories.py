@@ -16,7 +16,7 @@ def create_habit(owner, title: str, purpose: str, datetype: str, freq=1):
         user=owner, 
         title=title, 
         purpose=purpose, 
-        habit_datetype=datetype, 
+        datetype=datetype, 
         frequency=freq
     )
     return habit
@@ -29,3 +29,11 @@ def create_habit_log(habit, comment: str, status: bool, days_before=0):
         date=timezone.now() + timedelta(days=-days_before)
     )
     return instance
+
+def generate_habit_input_data(title: str, datetype: str, frequency=1, purpose=''):
+    return {
+        'title': title,
+        'purpose': purpose,
+        'datetype': datetype,
+        'frequency': frequency
+    }

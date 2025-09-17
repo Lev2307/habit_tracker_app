@@ -5,49 +5,46 @@
 {% block title %} Привычка - "{{ habit }}" {% endblock title %}
 
 {% block content %}
-    {% if habitLogs %}
-        {% if habit.habit_datetype == 'week' %}
-            <h1>Ваш текущий недельный стрик выполнения привычки: {{ habit.streak }}</h1>
-            {% for weekly_block in habitLogs %}
-                <div class="weekly_block">
-                    <div class="header">
-                        <h1>Неделя - {{ forloop.counter }}</h1>
-                        {% if c|index:forloop.counter0 == habit.frequency %}
-                            <p class="header complited_weekly_habit">Вы успешно выполнили привычку за {{ forloop.counter }} неделю ^-^</p>
-                        {% elif weekly_block|length == 7 and c|index:forloop.counter0 < habit.frequency %}
-                            <p class="header incomplited_weekly_habit">Вы не смогли выполнить привычку за {{ forloop.counter }} неделю ;<</p>
-                        {% endif %}
-                    </div>
-                    {% for log in weekly_block %}
-                        <div>
-                            <h1>{{ log.comment }}</h1>
-                            {% if log.status == 'complited' %} 
-                                <span>Выполнено ✅ в {{ log.date }}</span>
-                            {% elif log.status == 'incomplited' %}
-                                <span>Не выполнено ❌ в {{ log.date }}</span>
-                            {% else %}
-                                <span>Не было записано 🤦‍♂️ в {{ log.date }}</span>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        {% elif habit.habit_datetype == 'every_day' %}
-            <h1>Ваш текущий ежедневный стрик выполнения привычки: {{ habit.streak }}</h1>
-            {% for log in habitLogs %}
-                <div class="every_day_block">
-                    <h1>{{ log.comment }}</h1>
-                    {% if log.status == 'complited' %} 
-                        <span>Выполнено ✅ в {{ log.date }}</span>
-                    {% elif log.status == 'incomplited' %}
-                        <span>Не выполнено ❌ в {{ log.date }}</span>
-                    {% else %}
-                        <span>Не было записано 🤦‍♂️ в {{ log.date }}</span>
+    {% if habit.datetype == 'weekly' and habitLogs|index:0 %}
+        <h1>Ваш текущий недельный стрик выполнения привычки: {{ habit.streak }}</h1>
+        {% for weekly_block in habitLogs %}
+            <div class="weekly_block">
+                <div class="header">
+                    <h1>Неделя - {{ forloop.counter }}</h1>
+                    {% if c|index:forloop.counter0 == habit.frequency %}
+                        <p class="header complited_weekly_habit">Вы успешно выполнили привычку за {{ forloop.counter }} неделю ^-^</p>
+                    {% elif weekly_block|length == 7 and c|index:forloop.counter0 < habit.frequency %}
+                        <p class="header incomplited_weekly_habit">Вы не смогли выполнить привычку за {{ forloop.counter }} неделю ;<</p>
                     {% endif %}
                 </div>
-            {% endfor %}
-        {% endif %}
-        </div>
+                {% for log in weekly_block %}
+                    <div>
+                        <h1>{{ log.comment }}</h1>
+                        {% if log.status == 'complited' %} 
+                            <span>Выполнено ✅ в {{ log.date }}</span>
+                        {% elif log.status == 'incomplited' %}
+                            <span>Не выполнено ❌ в {{ log.date }}</span>
+                        {% else %}
+                            <span>Не было записано 🤦‍♂️ в {{ log.date }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% elif habit.datetype == 'daily' and habitLogs %}
+        <h1>Ваш текущий ежедневный стрик выполнения привычки: {{ habit.streak }}</h1>
+        {% for log in habitLogs %}
+            <div class="every_day_block">
+                <h1>{{ log.comment }}</h1>
+                {% if log.status == 'complited' %} 
+                    <span>Выполнено ✅ в {{ log.date }}</span>
+                {% elif log.status == 'incomplited' %}
+                    <span>Не выполнено ❌ в {{ log.date }}</span>
+                {% else %}
+                    <span>Не было записано 🤦‍♂️ в {{ log.date }}</span>
+                {% endif %}
+            </div>
+        {% endfor %}
     {% else %}  
             <p>У вас пока нет созданных отчётов.</p>
     {% endif %}

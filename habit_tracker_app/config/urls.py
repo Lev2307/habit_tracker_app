@@ -23,5 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', redirect_to_habits),
     path('habits/', include('habits.urls', namespace='habits')),
-    path('api/', include('habits.api.urls',))
+    path('api/', include('habits.api.urls', namespace='api'))
 ]

@@ -20,12 +20,12 @@
     <script>
         const freq_field_block = document.getElementById('field_id_frequency');
         const freq_select_field = document.getElementById('id_frequency');
-        const datetype = document.getElementById('id_habit_datetype');
+        const datetype = document.getElementById('id_datetype');
 
         datetype.addEventListener('change', function() {
             const selectedDatetype = this.value;
 
-            if (selectedDatetype == 'every_day') {
+            if (selectedDatetype == 'daily') {
                 freq_field_block.style.display = 'none';
                 freq_select_field.value = '1';
             } else {

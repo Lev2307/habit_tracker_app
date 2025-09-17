@@ -4,7 +4,7 @@ from django.urls import reverse
 from .factories import create_user, create_habit, create_habit_log
 from ..models import Habit, HabitLog, HABIT_LOG_STATUS_INCOMPLITED
 
-class HabitViewTest(TestCase):
+class HabitViewTests(TestCase):
     def setUp(self):
         self.username1 = 'admin_views'
         self.password1 = 'password123_views'
@@ -13,8 +13,8 @@ class HabitViewTest(TestCase):
 
         self.user1 = create_user(self.username1, self.password1)
         self.user2 = create_user(self.username2, self.password2)
-        self.habit_weekly = create_habit(self.user1, 'New habit test_views', 'habit views purpose', 'week', 2)
-        self.habit_everyday = create_habit(self.user1, 'Habit every day test_views', 'habit views purpose', 'every_day')
+        self.habit_weekly = create_habit(self.user1, 'New habit test_views', 'habit views purpose', 'weekly', 2)
+        self.habit_daily = create_habit(self.user1, 'Habit every day test_views', 'habit views purpose', 'daily')
 
     def test_habits_list_is_login_required(self):
         '''Проверка, что только залогиненный пользователь может посетить страницу со списком привычек.'''
@@ -31,7 +31,7 @@ class HabitViewTest(TestCase):
         self.client.login(username=self.username1, password=self.password1)
         response = self.client.get(reverse('habits:habits_list'))
 
-        self.assertQuerySetEqual(response.context['habits'], [Habit.objects.get(habit_datetype='every_day'), Habit.objects.get(habit_datetype='week')])
+        self.assertQuerySetEqual(response.context['habits'], [Habit.objects.get(datetype='daily'), Habit.objects.get(datetype='weekly')])
 
     def test_habitslist_dont_display_other_user_habits(self):
         '''Проверка, что пользователь не может видеть привычки других пользователей, а только свои.'''
@@ -59,7 +59,7 @@ class HabitViewTest(TestCase):
         correct_data = {
             'title': 'Change mindset',
             'purpose': 'To become better',
-            'habit_datetype': 'week',
+            'datetype': 'weekly',
             'frequency': 3
         }
         response_correct_data = self.client.post(reverse('habits:create_habit'), data=correct_data)
@@ -77,13 +77,13 @@ class HabitViewTest(TestCase):
         wrong_data_1 = {
             'title': 'Change mindset wrong 1',
             'purpose': 'To become better',
-            'habit_datetype': 'week',
+            'datetype': 'weekly',
             'frequency': 0
         }
         wrong_data_2 = {
             'title': 'Change mindset wrong 2',
             'purpose': 'To become better',
-            'habit_datetype': 'week',
+            'datetype': 'weekly',
             'frequency': 14
         }
         response_wrong_data1 = self.client.post(reverse('habits:create_habit'), data=wrong_data_1)
@@ -95,13 +95,13 @@ class HabitViewTest(TestCase):
         self.assertEqual(response_wrong_data2.status_code, 200)
         self.assertEqual(Habit.objects.filter(title=wrong_data_2['title']).exists(), False)
 
-    def test_create_habit_every_day_correct_data(self):
+    def test_create_habit_daily_correct_data(self):
         '''Проверка создания ежедневной привычки c правильными данными'''
         self.client.login(username=self.username1, password=self.password1)
         correct_data = { # значение frequency равное 1
             'title': 'Change mindset every day',
             'purpose': 'To become better',
-            'habit_datetype': 'every_day',
+            'datetype': 'daily',
             'frequency': 1
         }
         resp = self.client.post(reverse('habits:create_habit'), correct_data)
@@ -207,7 +207,7 @@ class HabitViewTest(TestCase):
 
     def test_habit_delete_page_is_login_required(self):
         '''Проверка, что только залогиненный пользователь может зайти на страницу удаления привычки'''
-        habit = Habit.objects.get(habit_datetype='every_day')
+        habit = Habit.objects.get(datetype='daily')
         response_unloggined = self.client.get(reverse('habits:delete_habit', args=(habit.id, )))
 
         self.client.login(username=self.username1, password=self.password1)
@@ -218,26 +218,26 @@ class HabitViewTest(TestCase):
 
     def test_other_user_access_to_delete_habit(self):
         '''Проверка, что другой пользователь не может удалить чужую привычку'''
-        habit = Habit.objects.get(habit_datetype='every_day')
+        habit = Habit.objects.get(datetype='daily')
         self.client.login(username=self.username2, password=self.password2)
         response = self.client.delete(reverse('habits:delete_habit', args=(habit.id, )))
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(Habit.objects.filter(habit_datetype='every_day').count(), 1)
+        self.assertEqual(Habit.objects.filter(datetype='daily').count(), 1)
     
     def test_delete_habit(self):
         '''Проверка удаления привычки'''
-        habit = Habit.objects.get(habit_datetype='every_day')
+        habit = Habit.objects.get(datetype='daily')
 
         self.client.login(username=self.username1, password=self.password1)
         response = self.client.delete(reverse('habits:delete_habit', args=(habit.id, )))
         
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(Habit.objects.filter(habit_datetype='every_day').count(), 0)
+        self.assertEqual(Habit.objects.filter(datetype='daily').count(), 0)
     
     def test_habit_update_page_is_login_required(self):
         '''Проверка, что только залогиненный пользователь может зайти на страницу редактирования привычки'''
-        habit = Habit.objects.get(habit_datetype='every_day')
+        habit = Habit.objects.get(datetype='daily')
         response_unloggined = self.client.get(reverse('habits:update_habit', args=(habit.id, )))
 
         self.client.login(username=self.username1, password=self.password1)
@@ -248,27 +248,27 @@ class HabitViewTest(TestCase):
 
     def test_other_user_access_to_update_habit(self):
         '''Проверка, что другой пользователь не может редактировать чужую привычку'''
-        habit = Habit.objects.get(habit_datetype='every_day')
+        habit = Habit.objects.get(datetype='daily')
         data = {
             'title': habit.title + 'Edited',
             'purpose': habit.purpose + 'Edited',
-            'habit_datetype': habit.habit_datetype,
+            'datetype': habit.datetype,
             'frequency': habit.frequency
         }
         self.client.login(username=self.username2, password=self.password2)
         response = self.client.post(reverse('habits:update_habit', args=(habit.id, )), data=data)
 
         self.assertEqual(response.status_code, 302)
-        self.assertNotEqual(Habit.objects.get(habit_datetype='every_day').title, data['title'])
+        self.assertNotEqual(Habit.objects.get(datetype='daily').title, data['title'])
 
     def test_update_habit_with_changed_freq(self):
         '''Проверка обновления привычки, у которой изменено поле периодичности'''
-        habit = Habit.objects.get(habit_datetype='week')
+        habit = Habit.objects.get(datetype='weekly')
         create_habit_log(habit, 'New log', HABIT_LOG_STATUS_INCOMPLITED)
         data = {
             'title': habit.title,
             'purpose': habit.purpose,
-            'habit_datetype': habit.habit_datetype,
+            'datetype': habit.datetype,
             'frequency': 4
         }
         self.client.login(username=self.username1, password=self.password1)
@@ -276,17 +276,17 @@ class HabitViewTest(TestCase):
         response = self.client.post(reverse('habits:update_habit', args=(habit.id, )), data=data)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(Habit.objects.get(habit_datetype='week').frequency, data['frequency'])
+        self.assertEqual(Habit.objects.get(datetype='weekly').frequency, data['frequency'])
         self.assertEqual(HabitLog.objects.filter(habit=habit).count(), 0) # логи удалились
 
     def test_update_habit_with_changed_datetype(self):
         '''Проверка обновления привычки, у которой изменено поле типа даты'''
-        habit = Habit.objects.get(habit_datetype='week')
+        habit = Habit.objects.get(datetype='weekly')
         create_habit_log(habit, 'New log', HABIT_LOG_STATUS_INCOMPLITED)
         data = {
             'title': habit.title,
             'purpose': habit.purpose,
-            'habit_datetype': 'every_day',
+            'datetype': 'daily',
             'frequency': 1,
         }
         self.client.login(username=self.username1, password=self.password1)
@@ -295,23 +295,23 @@ class HabitViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Habit.objects.get(title=habit).frequency, 1)
-        self.assertEqual(Habit.objects.get(title=habit).habit_datetype, data['habit_datetype'])
+        self.assertEqual(Habit.objects.get(title=habit).datetype, data['datetype'])
         self.assertEqual(HabitLog.objects.filter(habit=habit).count(), 0) # логи удалились
 
     def test_update_habit_with_changed_title_or_purpose(self):
         '''Проверка обновления привычки, у которой изменено название или цель'''
-        habit = Habit.objects.get(habit_datetype='week')
+        habit = Habit.objects.get(datetype='weekly')
         create_habit_log(habit, 'New log', HABIT_LOG_STATUS_INCOMPLITED)
         data = {
             'title': habit.title + ' edited',
             'purpose': habit.purpose + ' edited',
-            'habit_datetype': habit.habit_datetype,
+            'datetype': habit.datetype,
             'frequency' : habit.frequency
         }
         self.client.login(username=self.username1, password=self.password1)
 
         response = self.client.post(reverse('habits:update_habit', args=(habit.id, )), data=data)
-        edited_habit = Habit.objects.get(habit_datetype='week')
+        edited_habit = Habit.objects.get(datetype='weekly')
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(edited_habit.title, data['title'])

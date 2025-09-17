@@ -39,8 +39,8 @@ def increase_habit_streak_field(habit: Habit, habit_logs, new_habit_log_status: 
     '''
         Функция увеличивает или обнуляет значение streak у привычки
     '''
-    datetype = habit.habit_datetype
-    if datetype == 'week':
+    datetype = habit.datetype
+    if datetype == 'weekly':
         habit_logs_list, count_complited_habit_logs_in_each_block = divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs)
         if len(habit_logs_list[-1])+1 == 7 and new_habit_log_status == HABIT_LOG_STATUS_COMPLITED: # +1 поскольку новый созданный (со статусом new_habit_log_status) нет в недельном блоке
             if count_complited_habit_logs_in_each_block[-1] + 1 >= habit.frequency:
@@ -50,7 +50,7 @@ def increase_habit_streak_field(habit: Habit, habit_logs, new_habit_log_status: 
             if count_complited_habit_logs_in_each_block[-1] >= habit.frequency:
                 habit.streak = F("streak") + 1
                 habit.save()
-    elif datetype == 'every_day':
+    elif datetype == 'daily':
         if habit_logs.count() == 0 and new_habit_log_status == HABIT_LOG_STATUS_COMPLITED:
                 habit.streak = F("streak") + 1
                 habit.save()

@@ -57,7 +57,7 @@ class UpdateHabit(LoginRequiredMixin, generic.UpdateView):
     
     def form_valid(self, form):
         instance = self.get_object()
-        if (instance.frequency != form.cleaned_data.get('frequency')) or (instance.habit_datetype != form.cleaned_data.get('habit_datetype')): # если было изменено поле frequency или habit_datetype
+        if (instance.frequency != form.cleaned_data.get('frequency')) or (instance.datetype != form.cleaned_data.get('datetype')): # если было изменено поле frequency или datetype
             HabitLog.objects.filter(habit=instance).delete()
         return super().form_valid(form)
     
@@ -92,7 +92,7 @@ class HabitDetail(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         habit_logs_list = HabitLog.objects.filter(habit=self.get_object())
-        if self.get_object().habit_datetype == 'week':
+        if self.get_object().datetype == 'weekly':
             habit_logs_list, amount_complited_habit_logs_in_each_week_block = divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs_list)
             context['c'] = amount_complited_habit_logs_in_each_week_block
         context['habitLogs'] = habit_logs_list

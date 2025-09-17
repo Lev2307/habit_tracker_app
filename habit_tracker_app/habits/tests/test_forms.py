@@ -7,14 +7,14 @@ from ..models import Habit, HabitLog, HABIT_LOG_STATUS_INCOMPLITED
 
 User = get_user_model()
 
-class HabitFormTest(TestCase):
+class HabitFormTests(TestCase):
     def setUp(self):
         self.username1 = 'admin1_forms'
         self.password1 = 'password123_forms'
         
         self.user = create_user(self.username1, self.password1)
-        self.habit_weekly = create_habit(self.user, 'Habit weekly test habit_forms ', 'habit form purpose', 'week', 2)
-        self.habit_everyday = create_habit(self.user, 'Habit every day  test habit_forms', 'habit form purpose', 'every_day')
+        self.habit_weekly = create_habit(self.user, 'Habit weekly test habit_forms ', 'habit form purpose', 'weekly', 2)
+        self.habit_everyday = create_habit(self.user, 'Habit every day  test habit_forms', 'habit form purpose', 'daily')
 
     def test_creating_habit_log_to_the_same_date_as_previous_not_allowed(self):
         '''Проверка, что нельзя создать лог о привычке, дата которого совпадает с датой последнего созданного лога'''
@@ -40,7 +40,7 @@ class HabitFormTest(TestCase):
         wrong_data = { # любое другое значение frequency отличное от 1
             'title': 'Change mindset every day wrong',
             'purpose': 'To become better',
-            'habit_datetype': 'every_day',
+            'datetype': 'daily',
             'frequency': 3
         }
         resp = self.client.post(reverse('habits:create_habit'), wrong_data)
