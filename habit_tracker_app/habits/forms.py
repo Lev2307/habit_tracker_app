@@ -20,9 +20,14 @@ class HabitForm(forms.ModelForm):
         if datetype == 'daily' and frequency != 1:
             raise forms.ValidationError('Если вы выбрали выполнять привычку каждый день, поле периодичности должно быть равным 1')
      
-    def save(self, commit=True):
+    def save(self, commit=True, **kwargs):
+        upd = kwargs.pop('upd', None) 
         instance = super().save(commit=False)
         instance.user = self.user
+
+        if upd:
+            instance.streak = 0
+            
         if commit:
             instance.save()
         return instance

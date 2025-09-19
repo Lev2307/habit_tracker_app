@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
 
-from ...models import Habit, HabitLog
+from ...models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED
 from ...tests.factories import generate_habit_input_data, create_user, create_habit, create_habit_log
 
 
@@ -103,5 +103,98 @@ class HabitViewsApiTests(APITestCase):
         self.assertEqual(owner_response.data['datetype'], habit.datetype)
         self.assertEqual(owner_response.data['frequency'], habit.frequency)
         self.assertEqual(owner_response.data['streak'], habit.streak)
-
         self.assertEqual(other_user_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_api_update_habit_is_login_required(self):
+        '''Проверка, что редактировать привычку может только залогиненный пользователь (PUT)'''
+        habit = Habit.objects.get(datetype='daily')
+        anonymous_response = self.client.put(reverse('api:habit-detail', args=(habit.id, )), data={})
+        self.assertEqual(anonymous_response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_api_update_habit_only_owner_access(self):
+        '''Проверка, что доступ к редактированию привычки имеет только создатель привычки (PUT)'''
+        habit = Habit.objects.get(datetype='daily')
+        data = generate_habit_input_data('Edited title', habit.datetype, habit.frequency, 'Edited purpose')
+
+        self.client.login(username=self.username1, password=self.password1) # owner
+        owner_response = self.client.put(reverse('api:habit-detail', args=(habit.id, )), data=data)
+        self.client.logout()
+
+        self.client.login(username=self.username2, password=self.password2) # other user
+        other_user_response = self.client.put(reverse('api:habit-detail', args=(habit.id, )), data=data)
+
+        self.assertEqual(owner_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(other_user_response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_api_update_habit_from_daily_to_weekly(self):
+        '''Проверка редактирования привычки с ежедневной на недельную (PUT)'''
+        habit = Habit.objects.get(datetype='daily')
+        create_habit_log(habit, 'First Log', HABIT_LOG_STATUS_COMPLITED, 2)
+        habit.streak = 1
+        habit.save()
+        weekly_data = generate_habit_input_data('Edited title', 'weekly', 2, 'Edited purpose')
+        
+        self.client.login(username=self.username1, password=self.password1)
+        response = self.client.put(reverse('api:habit-detail', args=(habit.id, )), data=weekly_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Habit.objects.filter(title=weekly_data['title']).exists())
+        self.assertEqual(response.data['habit_logs'], []) # удалился лог из-за смены datetype
+        self.assertEqual(response.data["streak"], 0) # сбросился стрик из-за смены datetype
+
+    def test_api_update_habit_from_weekly_to_daily(self):
+        '''Проверка редактирования привычки с недельной на ежедневную (PUT)'''
+        habit = Habit.objects.get(datetype='weekly')
+        create_habit_log(habit, 'First Log', HABIT_LOG_STATUS_COMPLITED, 2)
+        daily_data = generate_habit_input_data('Edited title to daily', 'daily', 1, 'Edited purpose to daily')
+        
+        self.client.login(username=self.username1, password=self.password1)
+        response = self.client.put(reverse('api:habit-detail', args=(habit.id, )), data=daily_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Habit.objects.filter(title=daily_data['title']).exists())
+        self.assertEqual(response.data['habit_logs'], []) # удалился лог из-за смены datetype
+
+    def test_api_update_habit_from_weekly_to_daily_wrong_data(self):
+        '''Проверка редактирования привычки с недельной на ежедневную c неправильными данными (PUT)'''
+        habit = Habit.objects.get(datetype='weekly')
+        create_habit_log(habit, 'First Log', HABIT_LOG_STATUS_COMPLITED, 2)
+        daily_data_wrong_data = generate_habit_input_data('Edited title to daily', 'daily', 4, 'Edited purpose to daily')
+        
+        self.client.login(username=self.username1, password=self.password1)
+        response = self.client.put(reverse('api:habit-detail', args=(habit.id, )), data=daily_data_wrong_data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(str(response.data['frequency'][0]), 'If you have chosen to perform a habit every day, the frequency field should be equal to 1.')
+        self.assertFalse(Habit.objects.filter(title=daily_data_wrong_data['title']).exists())
+
+    def test_habit_delete_is_login_required(self):
+        '''Проверка, что удалять привычку может только залогиненный пользователь (DELETE)'''
+        habit = Habit.objects.get(datetype='daily')
+        anonymous_response = self.client.delete(reverse('api:habit-detail', args=(habit.id, )))
+        self.assertEqual(anonymous_response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_api_delete_habit_only_owner_access(self):
+        '''Проверка, что доступ к удалению привычки имеет только создатель привычки (DELETE)'''
+        habit = Habit.objects.get(datetype='daily')
+
+        self.client.login(username=self.username1, password=self.password1) # owner
+        owner_response = self.client.delete(reverse('api:habit-detail', args=(habit.id, )))
+        self.client.logout()
+
+        self.client.login(username=self.username2, password=self.password2) # other user
+        other_user_response = self.client.delete(reverse('api:habit-detail', args=(habit.id, )))
+
+        self.assertEqual(owner_response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(other_user_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_api_delete_habit(self):
+        '''Проверка удаления привычки (DELETE)'''
+        habit = Habit.objects.get(datetype='daily')
+
+        self.client.login(username=self.username1, password=self.password1)
+        response = self.client.delete(reverse('api:habit-detail', args=(habit.id, )))
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Habit.objects.filter(datetype='daily').count(), 0)
+    

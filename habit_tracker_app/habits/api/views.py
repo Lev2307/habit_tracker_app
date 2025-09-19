@@ -20,7 +20,5 @@ class HabitsViewSet(viewsets.ModelViewSet):
     
     def retrieve(self, request, pk):
         habit = self.get_object()
-        serializer = HabitSerializer(habit, context={'habit': habit})
+        serializer = self.get_serializer(habit, context={'habit': habit})
         return Response(serializer.data)
-
-    

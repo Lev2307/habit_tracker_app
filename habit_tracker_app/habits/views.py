@@ -1,8 +1,11 @@
+
 from django.shortcuts import render, HttpResponseRedirect, get_object_or_404, Http404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
+from django.db.models import F
+
 
 from .models import Habit, HabitLog
 from .forms import HabitForm, CreateHabitLogForm
@@ -56,9 +59,9 @@ class UpdateHabit(LoginRequiredMixin, generic.UpdateView):
         return super().dispatch(request, *args, **kwargs)
     
     def form_valid(self, form):
-        instance = self.get_object()
-        if (instance.frequency != form.cleaned_data.get('frequency')) or (instance.datetype != form.cleaned_data.get('datetype')): # если было изменено поле frequency или datetype
-            HabitLog.objects.filter(habit=instance).delete()
+        if (self.get_object().frequency != form.cleaned_data.get('frequency')) or (self.get_object().datetype != form.cleaned_data.get('datetype')): # если было изменено поле frequency или datetype
+            HabitLog.objects.filter(habit=self.get_object()).delete()
+        instance = form.save(commit=False, upd=True)
         return super().form_valid(form)
     
     def handle_habit_not_found(self):

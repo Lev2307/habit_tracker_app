@@ -13,7 +13,6 @@ class HabitSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields', None)
-
         super().__init__(*args, **kwargs)
 
         if fields is not None:
@@ -25,7 +24,7 @@ class HabitSerializer(serializers.ModelSerializer):
     def habit_logs_divided_into_blocks(self, *args):
         habit = self.context.get('habit', '')
         if habit == '':
-            return 'None is returned as habit.'
+            return []
         habit_logs_json = HabitLogSerializer(HabitLog.objects.filter(habit=habit), many=True).data
         if habit.datetype == 'weekly':
             divided_into_blocks = divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs_json, is_json=True)
@@ -44,6 +43,12 @@ class HabitSerializer(serializers.ModelSerializer):
         frequency = validated_data.get('frequency')
         if (datetype != instance.datetype) or (frequency != instance.frequency):
             HabitLog.objects.filter(habit=instance).delete()
+            instance.streak = 0
+        instance.title = validated_data.get('title')
+        instance.purpose = validated_data.get('purpose')
+        instance.datetype = datetype
+        instance.frequency = frequency
+        instance.save()
         return instance
     
 class HabitLogSerializer(serializers.ModelSerializer):
