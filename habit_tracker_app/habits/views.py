@@ -1,17 +1,13 @@
-
 from django.shortcuts import render, HttpResponseRedirect, get_object_or_404, Http404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
-from django.db.models import F
-
 
 from .models import Habit, HabitLog
 from .forms import HabitForm, CreateHabitLogForm
 from .helpers import set_habit_logs_status_forgot_to_mark, increase_habit_streak_field, divide_habit_logs_of_weekly_habit_by_week_blocks
 
-# Create your views here.
 
 def redirect_to_habits(request):
     return HttpResponseRedirect(reverse('habits:habits_list'))
@@ -105,7 +101,7 @@ class HabitDetail(LoginRequiredMixin, generic.DetailView):
         return HttpResponseRedirect(reverse('habits:habits_list'))
 
 @login_required
-def set_habitLog_status(request, pk):
+def create_habitlog(request, pk):
     status = request.GET.get('status')
     try:
         habit = get_object_or_404(Habit, user=request.user, pk=pk)

@@ -37,3 +37,9 @@ def generate_habit_input_data(title: str, datetype: str, frequency=1, purpose=''
         'datetype': datetype,
         'frequency': frequency
     }
+
+def generate_habit_log_data(comment: str, status: bool):
+    return {
+        'comment': comment,
+        'status': status
+    }

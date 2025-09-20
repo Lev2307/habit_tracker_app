@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-# Create your models here.
 
 HABIT_LOG_STATUS_INCOMPLITED = 'incomplited'
 HABIT_LOG_STATUS_COMPLITED = 'complited'

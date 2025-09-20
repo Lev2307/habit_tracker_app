@@ -3,9 +3,8 @@ from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
-
-from ...models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED
-from ...tests.factories import generate_habit_input_data, create_user, create_habit, create_habit_log
+from ...models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED, HABIT_LOG_STATUS_INCOMPLITED
+from ...tests.factories import generate_habit_input_data, create_user, create_habit, create_habit_log, generate_habit_log_data
 
 
 class HabitViewsApiTests(APITestCase):
@@ -198,3 +197,39 @@ class HabitViewsApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Habit.objects.filter(datetype='daily').count(), 0)
     
+    def test_api_create_habit_log_is_login_required(self):
+        '''Проверка, что создавать лог для привычки может только залогиненный пользователь (POST)'''
+        habit = Habit.objects.get(datetype="daily")
+        anonymous_response = self.client.post(reverse('api:api_create_habit_log', args=(habit.id, ), query={'status': 'complited'}), data={})
+        self.assertEqual(anonymous_response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_api_create_habit_log_only_owner_access(self):
+        '''Проверка, что только создатель привычки может создавать лог к ней (POST)'''
+        habit = Habit.objects.get(datetype="daily")
+        owner_data = generate_habit_log_data('owner com', HABIT_LOG_STATUS_COMPLITED)
+        other_user_data = generate_habit_log_data('other com', HABIT_LOG_STATUS_COMPLITED)
+
+        self.client.login(username=self.username1, password=self.password1)
+        owner_response = self.client.post(reverse('api:api_create_habit_log', args=(habit.id, ), query={'status': owner_data['status']}), data=owner_data) # owner
+        self.client.logout()
+
+        self.client.login(username=self.username2, password=self.password2)
+        other_user_response = self.client.post(reverse('api:api_create_habit_log', args=(habit.id, ), query={'status': other_user_data['status']}), data=other_user_data) # other user
+
+        self.assertEqual(owner_response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(HabitLog.objects.filter(comment=owner_data['comment']).exists())
+        self.assertEqual(HabitLog.objects.filter(habit=habit).count(), 1)
+
+        self.assertEqual(other_user_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(other_user_response.data["message"], "You are not allowed to create log for this habit.")
+
+    def test_api_create_habit_log(self):
+        '''Проверка создания лога привычки (POST)'''
+        self.client.login(username=self.username1, password=self.password1)
+        habit = Habit.objects.get(datetype="daily")
+        data = generate_habit_log_data('com', HABIT_LOG_STATUS_INCOMPLITED)
+        response = self.client.post(reverse('api:api_create_habit_log', args=(habit.id, ), query={'status': data['status']}), data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(HabitLog.objects.filter(comment=data['comment']).exists())
+        self.assertEqual(HabitLog.objects.filter(habit=habit).count(), 1)
