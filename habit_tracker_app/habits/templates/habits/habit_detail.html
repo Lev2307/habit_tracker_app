@@ -11,7 +11,7 @@
             <div class="weekly_block">
                 <div class="header">
                     <h1>Неделя - {{ forloop.counter }}</h1>
-                    {% if c|index:forloop.counter0 == habit.frequency %}
+                    {% if weekly_block|length == 7 and c|index:forloop.counter0 >= habit.frequency %}
                         <p class="header complited_weekly_habit">Вы успешно выполнили привычку за {{ forloop.counter }} неделю ^-^</p>
                     {% elif weekly_block|length == 7 and c|index:forloop.counter0 < habit.frequency %}
                         <p class="header incomplited_weekly_habit">Вы не смогли выполнить привычку за {{ forloop.counter }} неделю ;<</p>

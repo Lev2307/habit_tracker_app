@@ -10,7 +10,10 @@ def divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs, is_json=False):
         Создаёт двумерный массив логов a, где a[i] - список логов за 1 неделю. Также создаёт список ck, где ck[i] - сколько логов a[i] имеет статус 'complited'
     '''
     lk = list(habit_logs)
-    a = [[] for _ in range((len(lk) // 7)+1)] # разбиение логов на недельные блоки ( двумерный массив ) 
+    # разбиение логов на недельные блоки ( двумерный массив ) 
+    a = [[] for _ in range((len(lk) // 7)+1)]  
+    if len(lk) % 7 == 0:
+        a = [[] for _ in range((len(lk) // 7))]
     ck = [0 for _ in range(len(a))]
     for i in range(len(lk)):
         a[(i // 7)].append(lk[i])
@@ -28,10 +31,10 @@ def set_habit_logs_status_forgot_to_mark(habit: Habit, last_habit_log_date):
     '''
         Создаёт модели HabitLog, которые не были созданы пользователем в промежутке хотя бы два дня между последним HabitLog (его датой) и текущей датой и присваивает им статус - forgot_to_mark 
     '''
-    diff_in_days_between_last_log_date_and_now = (timezone.now().date() - last_habit_log_date).days
+    diff_in_days_between_last_log_date_and_now = (timezone.localtime(timezone.now()).date() - last_habit_log_date).days
     if diff_in_days_between_last_log_date_and_now >= 2:
         for i in range(diff_in_days_between_last_log_date_and_now-1):
-            date = timezone.now() + timedelta(days=-(diff_in_days_between_last_log_date_and_now-i-1))
+            date = timezone.localtime(timezone.now()) + timedelta(days=-(diff_in_days_between_last_log_date_and_now-i-1))
             habitLog = HabitLog(habit=habit, comment='Забыли сделать отчёт!!', status=HABIT_LOG_STATUS_FORGOT_TO_MARK, date=date)
             habitLog.save()
 

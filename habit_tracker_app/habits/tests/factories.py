@@ -26,7 +26,7 @@ def create_habit_log(habit, comment: str, status: bool, days_before=0):
         habit=habit, 
         comment=comment, 
         status=status, 
-        date=timezone.now() + timedelta(days=-days_before)
+        date=timezone.localtime(timezone.now()) + timedelta(days=-days_before)
     )
     return instance
 

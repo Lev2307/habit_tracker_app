@@ -25,7 +25,7 @@ class HabitSerializer(serializers.ModelSerializer):
         habit = self.context.get('habit', '')
         if habit == '':
             return []
-        habit_logs_json = HabitLogSerializer(HabitLog.objects.filter(habit=habit), many=True).data
+        habit_logs_json = HabitLogSerializer(HabitLog.objects.filter(habit=habit).order_by("-date"), many=True).data
         if habit.datetype == 'weekly':
             divided_into_blocks = divide_habit_logs_of_weekly_habit_by_week_blocks(habit_logs_json, is_json=True)
             return divided_into_blocks

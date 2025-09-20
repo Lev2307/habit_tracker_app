@@ -15,6 +15,10 @@ HABIT_LOG_STATUS = [
     (HABIT_LOG_STATUS_FORGOT_TO_MARK, 'Забыли записать!')
 ]
 
+def get_local_now_date():
+    """Returns the current date in the local timezone."""
+    return timezone.localtime(timezone.now()).date()
+
 class Habit(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title = models.CharField('Название', max_length=100)
@@ -37,7 +41,7 @@ class Habit(models.Model):
 class HabitLog(models.Model):
     habit = models.ForeignKey(Habit, on_delete=models.CASCADE)
     status = models.CharField(choices=HABIT_LOG_STATUS)
-    date = models.DateField(default=timezone.now)
+    date = models.DateField(default=get_local_now_date)
     comment = models.CharField(max_length=100)
 
     class Meta:

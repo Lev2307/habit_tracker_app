@@ -43,6 +43,6 @@ class CreateHabitLogForm(forms.ModelForm):
     def clean(self):
         if len(self.habit_logs) > 0:
             last_habit_log_date = self.habit_logs.first().date
-            if last_habit_log_date == timezone.now().date():
+            if last_habit_log_date == timezone.localtime(timezone.now()).date():
                 raise forms.ValidationError(f'Нельзя создать отчёт о привычке в дату, в которую был создан последний отчёт ({last_habit_log_date}).')
 

@@ -7,7 +7,7 @@ from ...models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED, HABIT_LOG_STA
 from ...tests.factories import generate_habit_input_data, create_user, create_habit, create_habit_log, generate_habit_log_data
 
 
-class HabitViewsApiTests(APITestCase):
+class HabitViewsAPITests(APITestCase):
     def setUp(self):
         self.username1 = 'admin_api_views'
         self.password1 = 'api_views1234'
