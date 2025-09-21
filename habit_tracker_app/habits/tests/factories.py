@@ -30,7 +30,7 @@ def create_habit_log(habit, comment: str, status: bool, days_before=0):
     )
     return instance
 
-def generate_habit_input_data(title: str, datetype: str, frequency=1, purpose=''):
+def generate_habit_input_data(title: str, datetype: str, purpose='', frequency=1):
     return {
         'title': title,
         'purpose': purpose,

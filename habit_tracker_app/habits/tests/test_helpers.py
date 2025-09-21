@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .factories import create_user, create_habit, create_habit_log
+from .factories import create_user, create_habit, create_habit_log, generate_habit_log_data
 from ..models import Habit, HabitLog, HABIT_LOG_STATUS_COMPLITED, HABIT_LOG_STATUS_INCOMPLITED
 
 
@@ -24,13 +24,12 @@ class HabitHelpersTests(TestCase):
         url = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_INCOMPLITED})
         create_habit_log(habit, 'New log )', HABIT_LOG_STATUS_INCOMPLITED, days_before) 
         habit_logs_before_resp = HabitLog.objects.filter(habit=habit).count()
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_INCOMPLITED)
 
         self.client.login(username=self.username1, password=self.password1)
-        data = {
-            'comment': 'Log for today',
-        }
         self.client.post(url, data)
         habit_logs_after_resp = HabitLog.objects.filter(habit=habit).count()
+
         self.assertNotEqual(habit_logs_before_resp, habit_logs_after_resp)
         self.assertEqual(habit_logs_before_resp+days_before, habit_logs_after_resp)
         self.assertTrue(HabitLog.objects.filter(status='forgot_to_mark').exists())
@@ -40,11 +39,9 @@ class HabitHelpersTests(TestCase):
         '''Проверка увеличения поля streak при создании лога у ежедневной привычки, у которой до этого не было логов. При этом статус созданного лога - complited'''
         habit = Habit.objects.get(datetype='daily')
         url_status_complited = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_COMPLITED})
-        data = {
-            'comment': 'Log for today',
-        }
-        self.client.login(username=self.username1, password=self.password1)
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_COMPLITED)
 
+        self.client.login(username=self.username1, password=self.password1)
         self.client.post(url_status_complited, data)
         streak_status_from_response_status_complited = Habit.objects.get(datetype='daily').streak
 
@@ -57,9 +54,8 @@ class HabitHelpersTests(TestCase):
         habit.save() # так как ниже мы создаём лог со статусом complited, => увеличиваем streak
         create_habit_log(habit, 'NEw log', 'complited', 1)
         url_status_complited = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_COMPLITED})
-        data = {
-            'comment': 'Log for today',
-        }
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_COMPLITED)
+
         self.client.login(username=self.username1, password=self.password1)
         self.client.post(url_status_complited, data)
 
@@ -72,9 +68,8 @@ class HabitHelpersTests(TestCase):
         habit.save() # так как ниже мы создаём лог со статусом complited, => увеличиваем streak
         create_habit_log(habit, 'New log', 'incomplited', 1)
         url_status_incomplited = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_INCOMPLITED})
-        data = {
-            'comment': 'Log for today',
-        }
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_INCOMPLITED)
+
         self.client.login(username=self.username1, password=self.password1)
 
         self.client.post(url_status_incomplited, data)
@@ -90,12 +85,11 @@ class HabitHelpersTests(TestCase):
         for _ in range(2, 7):
             create_habit_log(habit, f'New log {_} день назад', 'incomplited', _)
         url_status_complited = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_COMPLITED})
-        data = {
-            'comment': 'Log for today',
-        }
-        self.client.login(username=self.username1, password=self.password1)
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_COMPLITED)
 
+        self.client.login(username=self.username1, password=self.password1)
         self.client.post(url_status_complited, data)
+
         self.assertEqual(Habit.objects.get(datetype='weekly').streak, 1)
 
     def test_increase_streak_for_habit_datetype_weekly_while_created_log_is_incompleted_and_habitlogs_with_status_complited_is_over_frequency(self):
@@ -106,16 +100,14 @@ class HabitHelpersTests(TestCase):
         habit = Habit.objects.get(datetype='weekly')
         create_habit_log(habit, 'New log 1', 'complited', 1)
         create_habit_log(habit, 'New log 2', 'complited', 2)
-
         for _ in range(3, 7):
             create_habit_log(habit, f'New log {_+1} день назад', 'incomplited', _)
         url_status_complited = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_INCOMPLITED})
-        data = {
-            'comment': 'Log for today',
-        }
-        self.client.login(username=self.username1, password=self.password1)
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_INCOMPLITED)
 
+        self.client.login(username=self.username1, password=self.password1)
         self.client.post(url_status_complited, data)
+
         self.assertEqual(Habit.objects.get(datetype='weekly').streak, 1)
 
     def test_no_increase_streak_for_habit_datetype_weekly_when_created_log_is_complited_but_habitlogs_not_multiple_of_7(self):
@@ -128,12 +120,11 @@ class HabitHelpersTests(TestCase):
         for _ in range(2, 7):
             create_habit_log(habit, f'New log {_+1} день назад', 'incomplited', _)
         url_status_complited = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_INCOMPLITED})
-        data = {
-            'comment': 'Log for today',
-        }
-        self.client.login(username=self.username1, password=self.password1)
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_INCOMPLITED)
 
+        self.client.login(username=self.username1, password=self.password1)
         self.client.post(url_status_complited, data)
+
         self.assertEqual(Habit.objects.get(datetype='weekly').streak, 0)
 
     def test_no_increase_streak_for_habit_datetype_weekly_when_created_log_is_incomplited(self):
@@ -146,12 +137,11 @@ class HabitHelpersTests(TestCase):
         for _ in range(2, 7):
             create_habit_log(habit, f'New log {_+1} день назад', 'incomplited', _)
         url_status_complited = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_INCOMPLITED})
-        data = {
-            'comment': 'Log for today',
-        }
-        self.client.login(username=self.username1, password=self.password1)
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_INCOMPLITED)
 
+        self.client.login(username=self.username1, password=self.password1)
         self.client.post(url_status_complited, data)
+
         self.assertEqual(Habit.objects.get(datetype='weekly').streak, 0)
 
     def test_zeroing_out_streak_for_habit_datetype_weekly(self):
@@ -167,11 +157,9 @@ class HabitHelpersTests(TestCase):
         for _ in range(9, 14):
             create_habit_log(habit, f'New log {_}', 'incomplited', _)
         url_status_complited = reverse('habits:set_habit_status_for_today', args=(habit.id, ), query={'status': HABIT_LOG_STATUS_INCOMPLITED})
-        data = {
-            'comment': 'Log for today',
-        }
-        self.client.login(username=self.username1, password=self.password1)
+        data = generate_habit_log_data('Log for today', HABIT_LOG_STATUS_INCOMPLITED)
 
+        self.client.login(username=self.username1, password=self.password1)
         self.client.post(url_status_complited, data)
 
         self.assertEqual(Habit.objects.get(datetype='weekly').streak, 0)
